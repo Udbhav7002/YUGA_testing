@@ -52,7 +52,7 @@ def occupancy(room_id: str):
     so the occupancy percentage divides by zero.
     """
     r = ROOMS[room_id]
-    pct = round(r["booked"] / r["capacity"] * 100)
+    pct = round(r["booked"] / r["capacity"] * 100) if r["capacity"] > 0 else 0
     return {"room": r["name"], "occupancy_pct": pct}
 
 
