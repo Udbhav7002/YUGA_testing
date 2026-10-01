@@ -46,27 +46,6 @@
   .notice { display: none; margin-top: 14px; padding: 12px 16px; border-radius: 10px;
     border: 1px solid #b98a2e66; background: #1a1608; color: var(--warn); font-size: 12.5px; }
   .notice.show { display: block; }
-  .agent { display: none; margin-top: 14px; padding: 14px 16px; border-radius: 10px;
-    border: 1px solid var(--line); background: var(--panel); }
-  .agent.show { display: block; }
-  .agent-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
-  .agent-title { font-size: 10.5px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--faint); font-weight: 600; }
-  .agent-status { font-size: 12px; color: var(--dim); font-variant-numeric: tabular-nums; text-align: right; }
-  .agent-status b { color: var(--accent); font-weight: 500; }
-  .agent-stages { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-  .chip { font-size: 11.5px; color: var(--faint); border: 1px solid var(--line); border-radius: 20px;
-    padding: 3px 10px; display: inline-flex; align-items: center; gap: 6px; transition: all .2s; }
-  .chip::before { content: ''; width: 6px; height: 6px; border-radius: 50%; border: 1px solid var(--faint); }
-  .chip.done { color: var(--ok); border-color: #42926b55; }
-  .chip.done::before { background: var(--ok); border-color: var(--ok); }
-  .chip.active { color: var(--accent); border-color: #5b8def66; }
-  .chip.active::before { background: var(--accent); border-color: var(--accent); animation: blink 1.1s infinite; }
-  @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
-  .agent-foot { margin-top: 10px; font-size: 12.5px; color: var(--dim); min-height: 16px; }
-  .agent-foot a { color: var(--accent); text-decoration: none; font-weight: 500; }
-  .agent-foot .ok { color: var(--ok); font-weight: 600; }
-  .agent-foot .warn { color: var(--warn); font-weight: 600; }
-  .agent-foot .bad { color: var(--bad); font-weight: 600; }
   footer { margin-top: 36px; color: var(--faint); font-size: 11.5px; }
 </style>
 <body><div class="wrap">
@@ -79,15 +58,7 @@
 
   <div class="incident" id="incident">
     <div class="headline">Request failed — our team has been notified</div>
-    <div class="detail">Incident <code id="incidentId">—</code> reported to CodeGhost. Engineers will follow up.</div>
-  </div>
-  <div class="agent" id="agent">
-    <div class="agent-head">
-      <span class="agent-title">CodeGhost — autonomous response</span>
-      <span class="agent-status" id="agentStatus">connecting…</span>
-    </div>
-    <div class="agent-stages" id="agentStages"></div>
-    <div class="agent-foot" id="agentFoot"></div>
+    <div class="detail">Incident <code id="incidentId">—</code> reported. CodeGhost is responding autonomously — <a href="http://127.0.0.1:8004/mission" target="_blank">track the fix in Mission Control →</a></div>
   </div>
   <div class="notice" id="notice"></div>
 
@@ -156,76 +127,11 @@ async function book(id, btn) {
   btn.disabled = false;
 }
 
-const ORCH = `http://${location.hostname}:8004`;
-const AGENT_STAGES = [
-  ['received', 'intercepted'], ['reading_source', 'source read'],
-  ['generating_test', 'test written'], ['running_failing_test', 'red run'],
-  ['generating_fix', 'fix written'], ['verifying_fix', 'green run'],
-  ['opening_pr', 'PR opened'],
-];
-let agentTimer = null;
-
 function showIncident(cid) {
   document.getElementById('incidentId').textContent = cid || '—';
   document.getElementById('incident').classList.add('show');
   document.querySelector('.status i').style.background = 'var(--bad)';
   document.querySelector('.status').childNodes[1].textContent = 'incident reported';
-  if (cid) trackAgent(cid);
-}
-
-function trackAgent(crashId) {
-  const panel = document.getElementById('agent');
-  panel.classList.add('show');
-  document.getElementById('agentStages').innerHTML =
-    AGENT_STAGES.map((s, i) => `<span class="chip" id="chip-${i}">${s[1]}</span>`).join('');
-  document.getElementById('agentFoot').innerHTML = '';
-  document.getElementById('agentStatus').textContent = 'report sent · waiting for orchestrator…';
-  if (agentTimer) clearInterval(agentTimer);
-  const t0 = Date.now();
-  let jobId = null;
-  agentTimer = setInterval(async () => {
-    const waited = (Date.now() - t0) / 1000;
-    try {
-      if (!jobId) {
-        const last = await (await fetch(`${ORCH}/status/last`)).json();
-        if (last.crash_id === crashId) { jobId = last.job_id; }
-        else if (waited > 12) {
-          document.getElementById('agentStatus').textContent =
-            'no job accepted — duplicate crash suppressed (5-min cooldown)';
-          clearInterval(agentTimer);
-          return;
-        } else {
-          document.getElementById('agentStatus').textContent =
-            `report sent · waiting for orchestrator (${waited.toFixed(0)}s)`;
-          return;
-        }
-      }
-      const job = await (await fetch(`${ORCH}/status/${jobId}`)).json();
-      const final = ['fixed', 'draft_pr', 'failed', 'error'].includes(job.status);
-      const cur = AGENT_STAGES.findIndex(s => s[0] === job.stage);
-      AGENT_STAGES.forEach((s, i) => {
-        const c = document.getElementById(`chip-${i}`);
-        c.className = 'chip' + (final || i < cur ? ' done' : i === cur ? ' active' : '');
-      });
-      if (final) {
-        clearInterval(agentTimer);
-        const foot = document.getElementById('agentFoot');
-        if (job.status === 'fixed') {
-          document.getElementById('agentStatus').innerHTML = `resolved in <b>${job.elapsed}s</b>`;
-          foot.innerHTML = `<span class="ok">Fix verified — regression test red before, green after.</span> <a href="${job.pr_url}" target="_blank">View pull request →</a>`;
-        } else if (job.status === 'draft_pr') {
-          document.getElementById('agentStatus').innerHTML = `draft in <b>${job.elapsed}s</b>`;
-          foot.innerHTML = `<span class="warn">Fix unverified — opened as draft for human review.</span> <a href="${job.pr_url}" target="_blank">View draft →</a>`;
-        } else {
-          document.getElementById('agentStatus').textContent = 'stopped';
-          foot.innerHTML = `<span class="bad">${job.status === 'failed' ? job.reason || 'pipeline stopped' : job.error || 'error'}</span>`;
-        }
-      } else {
-        document.getElementById('agentStatus').innerHTML =
-          `agent working — <b>${job.stage.replace(/_/g, ' ')}</b> · ${waited.toFixed(0)}s`;
-      }
-    } catch (e) {}
-  }, 800);
 }
 
 function showNotice(msg) {
@@ -234,8 +140,6 @@ function showNotice(msg) {
 }
 function hideIncident() {
   document.getElementById('incident').classList.remove('show');
-  document.getElementById('agent').classList.remove('show');
-  if (agentTimer) clearInterval(agentTimer);
   document.querySelector('.status i').style.background = 'var(--ok)';
   document.querySelector('.status').childNodes[1].textContent = 'all systems normal';
 }
