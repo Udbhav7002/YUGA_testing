@@ -1,5 +1,8 @@
+from pathlib import Path
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from middleware import install_crash_interceptor
@@ -14,6 +17,11 @@ app.add_middleware(
 )
 
 install_crash_interceptor(app)
+
+
+@app.get("/", response_class=FileResponse)
+def index():
+    return FileResponse(Path(__file__).parent / "static" / "index.html")
 
 ROOMS = {
     "atlas":    {"name": "Atlas Boardroom",   "capacity": 12, "booked": 7},
@@ -44,7 +52,7 @@ def occupancy(room_id: str):
     so the occupancy percentage divides by zero.
     """
     r = ROOMS[room_id]
-    pct = round(r["booked"] / r["capacity"] * 100)
+    pct = round(r["booked"] / r["capacity"] * 100) if r["capacity"] > 0 else 0
     return {"room": r["name"], "occupancy_pct": pct}
 
 
