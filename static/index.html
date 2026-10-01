@@ -4,108 +4,207 @@
 <title>YUGA Platform — Rooms</title>
 <style>
   :root {
-    --bg: #0e1013; --panel: #15181d; --panel2: #191d23; --line: #232830;
-    --txt: #ccd2da; --dim: #7a828c; --faint: #4a515b;
-    --accent: #5b8def; --ok: #42926b; --warn: #b98a2e; --bad: #c0564f;
+    --bg: #f5f2ea; --ink: #16150f; --muted: #6f6a5e; --faint: #9a9484;
+    --hair: #dcd7c9; --dash: #b8b19e; --red: #c92a2a; --paper: #fbfaf6;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
-    background: var(--bg); color: var(--txt); padding: 48px 24px; }
-  .wrap { max-width: 880px; margin: 0 auto; }
-  header { display: flex; align-items: baseline; justify-content: space-between;
-    border-bottom: 1px solid var(--line); padding-bottom: 16px; }
-  .brand { font-size: 15px; font-weight: 600; letter-spacing: 3px; }
-  .brand small { display: block; font-size: 11px; font-weight: 400; letter-spacing: .4px;
-    color: var(--faint); margin-top: 3px; }
-  .status { font-size: 11.5px; color: var(--dim); }
-  .status i { display: inline-block; width: 8px; height: 8px; border-radius: 50%;
-    background: var(--ok); margin-right: 6px; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-top: 28px; }
-  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; }
-  .card h3 { font-size: 14.5px; font-weight: 600; }
-  .card .meta { color: var(--faint); font-size: 12px; margin-top: 2px; }
-  .bar { height: 6px; background: var(--panel2); border-radius: 3px; margin: 14px 0 6px; overflow: hidden; }
-  .bar i { display: block; height: 100%; background: var(--accent); border-radius: 3px;
-    transition: width .5s ease; width: 0; }
-  .bar i.hot { background: var(--warn); }
-  .pct { font-size: 12px; color: var(--dim); font-variant-numeric: tabular-nums; }
+  body { font: 13px/1.6 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    background: var(--bg); color: var(--ink); padding: 40px 24px 80px; }
+  .wrap { max-width: 1040px; margin: 0 auto; }
+  .eyebrow { font-size: 11px; letter-spacing: 2px; color: var(--red); font-weight: 600; }
+  .eyebrow::before { content: '● '; font-size: 9px; vertical-align: 1px; }
+  header h1 { font-size: 40px; letter-spacing: 2px; margin: 6px 0 2px; font-weight: 700; }
+  .sub { color: var(--muted); font-size: 12.5px; }
+  .rule { border-top: 3px solid var(--ink); margin: 18px 0 0; }
+  .headrow { display: flex; justify-content: space-between; align-items: flex-end; }
+  .stamp { font-size: 11px; letter-spacing: 1px; border: 1.5px solid var(--ink);
+    padding: 7px 14px; font-weight: 600; background: var(--paper); white-space: nowrap; }
+  .stamp.alert { border-color: var(--red); color: var(--red); }
+
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 22px 0; }
+  .stat { border: 1px dashed var(--dash); background: var(--paper); padding: 12px 16px; }
+  .stat .k { font-size: 10px; letter-spacing: 1.5px; color: var(--muted); }
+  .stat .v { font-size: 22px; font-weight: 700; margin-top: 4px; }
+  .stat .v span { font-size: 11px; color: var(--muted); font-weight: 400; }
+  .stat .v.alert { color: var(--red); }
+
+  .layout { display: grid; grid-template-columns: 1fr 280px; gap: 20px; align-items: start; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+  .card { border: 1px dashed var(--dash); background: var(--paper); padding: 16px 18px; transition: border-color .2s; }
+  .card:hover { border-color: var(--ink); }
+  .card h3 { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .tag { font-size: 10px; color: var(--muted); border: 1px solid var(--hair); padding: 1px 7px;
+    letter-spacing: 1px; font-weight: 400; }
+  .meta { color: var(--muted); font-size: 11.5px; margin-top: 3px; }
+  .amen { color: var(--faint); font-size: 11px; margin: 8px 0 2px; letter-spacing: .5px; }
+  .bar { height: 5px; background: var(--hair); margin: 12px 0 6px; }
+  .bar i { display: block; height: 100%; background: var(--ink); transition: width .5s ease; width: 0; }
+  .bar i.hot { background: var(--red); }
+  .pct { font-size: 11.5px; color: var(--muted); }
+  .pct b { color: var(--ink); }
+  .spec { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--hair);
+    margin: 12px 0 0; }
+  .spec > div { padding: 8px 12px; }
+  .spec > div + div { border-left: 1px solid var(--hair); }
+  .spec .k { font-size: 9.5px; letter-spacing: 1.5px; color: var(--muted); }
+  .spec .v2 { font-size: 13px; font-weight: 700; margin-top: 2px; }
   .row { display: flex; gap: 8px; margin-top: 14px; }
-  button { font: inherit; font-size: 12.5px; font-weight: 500; color: var(--txt);
-    background: var(--panel2); border: 1px solid var(--line); border-radius: 6px;
-    padding: 8px 14px; cursor: pointer; transition: border-color .15s; }
-  button:hover { border-color: var(--accent); }
-  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-  button:disabled { opacity: .45; cursor: wait; }
-  .incident { display: none; margin-top: 14px; padding: 14px 16px; border-radius: 10px;
-    border: 1px solid #c0564f66; background: #1a0d0d; }
+  button { font: inherit; font-size: 11px; letter-spacing: 1px; font-weight: 600;
+    background: transparent; border: 1.5px solid var(--ink); color: var(--ink);
+    padding: 8px 16px; cursor: pointer; transition: all .15s; }
+  button:hover { background: var(--ink); color: var(--bg); }
+  button.primary { background: var(--ink); color: var(--bg); }
+  button.primary:hover { background: var(--red); border-color: var(--red); }
+  button.danger { border-color: var(--red); color: var(--red); }
+  button:disabled { opacity: .4; cursor: wait; }
+
+  .side { position: sticky; top: 24px; }
+  .panelbox { border: 1px dashed var(--dash); background: var(--paper); padding: 16px 18px; }
+  .panelbox h4 { font-size: 10.5px; letter-spacing: 2px; color: var(--muted); margin-bottom: 10px; }
+  .bitem { display: flex; justify-content: space-between; padding: 7px 0;
+    border-bottom: 1px dashed var(--hair); font-size: 12px; }
+  .bitem:last-child { border-bottom: none; }
+  .bitem .who { font-weight: 700; }
+  .bitem .when { color: var(--faint); font-size: 11px; }
+  .bempty { color: var(--faint); font-size: 11.5px; }
+
+  .incident { display: none; margin-top: 16px; border: 1.5px dashed var(--red);
+    background: var(--paper); padding: 14px 18px; }
   .incident.show { display: block; }
-  .incident .headline { color: #e8b0ab; font-weight: 600; font-size: 13.5px; }
-  .incident .detail { color: var(--dim); font-size: 12px; margin-top: 4px; }
-  .incident .detail code { font-family: ui-monospace, "SF Mono", Menlo, monospace;
-    color: var(--bad); font-size: 11.5px; }
-  .notice { display: none; margin-top: 14px; padding: 12px 16px; border-radius: 10px;
-    border: 1px solid #b98a2e66; background: #1a1608; color: var(--warn); font-size: 12.5px; }
-  .notice.show { display: block; }
-  footer { margin-top: 36px; color: var(--faint); font-size: 11.5px; }
+  .incident .headline { color: var(--red); font-weight: 700; font-size: 13px; letter-spacing: .5px; }
+  .incident .detail { color: var(--muted); font-size: 11.5px; margin-top: 4px; }
+  .incident .detail code { color: var(--red); }
+  .incident a { color: var(--red); }
+
+  .toasts { position: fixed; right: 20px; bottom: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 50; }
+  .toast { background: var(--paper); border: 1.5px solid var(--ink); border-left: 4px solid var(--ok, var(--ink));
+    color: var(--ink); padding: 10px 16px; font-size: 12px; max-width: 340px;
+    box-shadow: 4px 4px 0 rgba(22,21,15,.15); animation: slide .2s ease; }
+  .toast.warn { border-left-color: var(--red); }
+  @keyframes slide { from { transform: translateY(8px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+  .skeleton { border: 1px dashed var(--dash); height: 170px; position: relative; overflow: hidden; }
+  .skeleton::after { content: ''; position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, #16150f0a, transparent);
+    animation: shimmer 1.4s infinite; }
+  @keyframes shimmer { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+
+  footer { margin-top: 36px; color: var(--faint); font-size: 11px; letter-spacing: .5px; }
+  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .stats { grid-template-columns: repeat(2, 1fr); } }
 </style>
 <body><div class="wrap">
-  <header>
-    <div class="brand">YUGA PLATFORM<small>room booking · internal tooling</small></div>
-    <div class="status"><i></i>all systems normal</div>
-  </header>
-
-  <div class="grid" id="rooms"></div>
-
-  <div class="incident" id="incident">
-    <div class="headline">Request failed — our team has been notified</div>
-    <div class="detail">Incident <code id="incidentId">—</code> reported. CodeGhost is responding autonomously — <a href="http://127.0.0.1:8004/mission" target="_blank">track the fix in Mission Control →</a></div>
+  <div class="headrow">
+    <div>
+      <div class="eyebrow">LIVE ENVIRONMENT · INTERNAL TOOLING</div>
+      <h1>YUGA PLATFORM</h1>
+      <div class="sub">room booking · demo deployment · every request is real</div>
+    </div>
+    <div class="stamp" id="stamp">ALL SYSTEMS NORMAL</div>
   </div>
-  <div class="notice" id="notice"></div>
+  <div class="rule"></div>
 
-  <footer>Demo deployment · every request is real · failures are real failures</footer>
+  <div class="stats">
+    <div class="stat"><div class="k">ROOMS ONLINE</div><div class="v" id="stRooms">—</div></div>
+    <div class="stat"><div class="k">SEATS BOOKED</div><div class="v" id="stSeats">—</div></div>
+    <div class="stat"><div class="k">UTILISATION</div><div class="v" id="stUtil">—</div></div>
+    <div class="stat"><div class="k">OPEN INCIDENTS</div><div class="v" id="stInc">0</div></div>
+  </div>
+
+  <div class="layout">
+    <div>
+      <div class="grid" id="rooms"></div>
+      <div class="incident" id="incident">
+        <div class="headline">REQUEST FAILED — TEAM NOTIFIED</div>
+        <div class="detail">Incident <code id="incidentId">—</code> reported. CodeGhost is responding autonomously — <a href="http://127.0.0.1:8004/mission" target="_blank">track the fix in Mission Control →</a></div>
+      </div>
+    </div>
+    <div class="side">
+      <div class="panelbox">
+        <h4>MY BOOKINGS</h4>
+        <div id="myBookings"><div class="bempty">No bookings yet — pick a room.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>YUGA PLATFORM · ROOM BOOKING SERVICE · FAILURES ARE REAL FAILURES</footer>
 </div>
+<div class="toasts" id="toasts"></div>
 
 <script>
-async function loadRooms() {
-  const res = await fetch('/rooms');
-  const rooms = await res.json();
-  document.getElementById('rooms').innerHTML = rooms.map(r => `
+const state = { rooms: [], bookings: [], incidents: 0 };
+
+function toast(msg, kind) {
+  const t = document.createElement('div');
+  t.className = 'toast' + (kind ? ' ' + kind : '');
+  t.textContent = msg;
+  document.getElementById('toasts').appendChild(t);
+  setTimeout(() => t.remove(), 4200);
+}
+
+function renderRooms() {
+  document.getElementById('rooms').innerHTML = state.rooms.map(r => {
+    const amen = (r.amenities || []).join(' · ') || 'standard fit-out';
+    const full = r.booked >= r.capacity;
+    return `
     <div class="card">
-      <h3>${r.name}</h3>
-      <div class="meta">${r.booked} / ${r.capacity} booked</div>
+      <h3>${r.name}<span class="tag">${r.id}</span></h3>
+      <div class="meta">${r.booked} / ${r.capacity} booked${full ? ' · at capacity' : ''}</div>
+      <div class="amen">${amen}</div>
       <div class="bar"><i id="bar-${r.id}"></i></div>
       <div class="pct" id="pct-${r.id}">occupancy — not checked</div>
-      <div class="row">
-        <button onclick="checkOccupancy('${r.id}', this)">Check occupancy</button>
-        <button class="primary" onclick="book('${r.id}', this)">Book</button>
+      <div class="spec">
+        <div><div class="k">CAPACITY</div><div class="v2">${r.capacity}</div></div>
+        <div><div class="k">STATUS</div><div class="v2">${full ? 'FULL' : 'AVAILABLE'}</div></div>
       </div>
-    </div>`).join('');
+      <div class="row">
+        <button onclick="checkOccupancy('${r.id}', this)">CHECK OCCUPANCY</button>
+        ${full ? `<button disabled>AT CAPACITY</button>` : `
+          <button class="primary" id="bookbtn-${r.id}" onclick="askBook('${r.id}')">BOOK</button>
+          <button id="confirm-${r.id}" style="display:none" onclick="book('${r.id}')">CONFIRM</button>`}
+      </div>
+    </div>`;
+  }).join('');
+  renderStats();
 }
 
-async function checkOccupancy(id, btn) {
-  btn.disabled = true;
-  hideIncident(); hideNotice();
-  try {
-    const res = await fetch(`/rooms/${id}/occupancy`);
-    const data = await res.json();
-    if (!res.ok) {
-      showIncident(data.crash_id || 'unknown');
-    } else {
-      const pct = data.occupancy_pct;
-      const bar = document.getElementById(`bar-${id}`);
-      bar.style.width = pct + '%';
-      bar.classList.toggle('hot', pct >= 90);
-      document.getElementById(`pct-${id}`).textContent = `occupancy ${pct}%`;
-    }
-  } catch (e) {
-    showIncident(null);
-  }
-  btn.disabled = false;
+function renderStats() {
+  const rs = state.rooms;
+  const seats = rs.reduce((a, r) => a + r.booked, 0);
+  const cap = rs.reduce((a, r) => a + (r.capacity || 0), 0);
+  document.getElementById('stRooms').textContent = rs.length;
+  document.getElementById('stSeats').textContent = seats;
+  document.getElementById('stUtil').innerHTML = cap ? `${Math.round(seats / cap * 100)}<span>%</span>` : '—';
+  const inc = document.getElementById('stInc');
+  inc.textContent = state.incidents;
+  inc.className = 'v' + (state.incidents ? ' alert' : '');
 }
 
-async function book(id, btn) {
+function renderBookings() {
+  const el = document.getElementById('myBookings');
+  el.innerHTML = state.bookings.length
+    ? state.bookings.map(b => `<div class="bitem"><span class="who">${b.room}</span><span class="when">${b.at}</span></div>`).join('')
+    : '<div class="bempty">No bookings yet — pick a room.</div>';
+}
+
+async function loadRooms() {
+  document.getElementById('rooms').innerHTML = '<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>';
+  const res = await fetch('/rooms');
+  state.rooms = await res.json();
+  renderRooms();
+}
+
+function askBook(id) {
+  document.getElementById(`bookbtn-${id}`).style.display = 'none';
+  document.getElementById(`confirm-${id}`).style.display = '';
+  setTimeout(() => {
+    document.getElementById(`bookbtn-${id}`).style.display = '';
+    document.getElementById(`confirm-${id}`).style.display = 'none';
+  }, 5000);
+}
+
+async function book(id) {
+  const btn = document.getElementById(`confirm-${id}`);
   btn.disabled = true;
-  hideIncident(); hideNotice();
   try {
     const res = await fetch('/book', {
       method: 'POST',
@@ -114,15 +213,39 @@ async function book(id, btn) {
     });
     if (res.status === 409) {
       const d = await res.json();
-      showNotice(`Booking declined — ${d.detail}.`);
+      toast(`Booking declined — ${d.detail}.`, 'warn');
     } else if (res.ok) {
-      showNotice('Room booked for demo-user.');
-      loadRooms();
+      const d = await res.json();
+      state.bookings.unshift({ room: d.room, at: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) });
+      renderBookings();
+      toast(`${d.room} booked for demo-user.`);
+      await loadRooms();
+      return;
     } else {
-      showNotice(`Booking declined (${res.status}).`);
+      toast(`Booking declined (${res.status}).`, 'warn');
     }
   } catch (e) {
-    showNotice('Network error — try again.');
+    toast('Network error — try again.', 'warn');
+  }
+  btn.disabled = false;
+}
+
+async function checkOccupancy(id, btn) {
+  btn.disabled = true;
+  hideIncident();
+  try {
+    const res = await fetch(`/rooms/${id}/occupancy`);
+    const data = await res.json();
+    if (!res.ok) {
+      showIncident(data.crash_id || 'unknown');
+    } else {
+      const bar = document.getElementById(`bar-${id}`);
+      bar.style.width = data.occupancy_pct + '%';
+      bar.classList.toggle('hot', data.occupancy_pct >= 90);
+      document.getElementById(`pct-${id}`).innerHTML = `occupancy — <b>${data.occupancy_pct}%</b>`;
+    }
+  } catch (e) {
+    showIncident(null);
   }
   btn.disabled = false;
 }
@@ -130,20 +253,19 @@ async function book(id, btn) {
 function showIncident(cid) {
   document.getElementById('incidentId').textContent = cid || '—';
   document.getElementById('incident').classList.add('show');
-  document.querySelector('.status i').style.background = 'var(--bad)';
-  document.querySelector('.status').childNodes[1].textContent = 'incident reported';
+  const st = document.getElementById('stamp');
+  st.textContent = 'INCIDENT REPORTED';
+  st.className = 'stamp alert';
+  state.incidents += 1;
+  renderStats();
 }
 
-function showNotice(msg) {
-  const n = document.getElementById('notice');
-  n.textContent = msg; n.classList.add('show');
-}
 function hideIncident() {
   document.getElementById('incident').classList.remove('show');
-  document.querySelector('.status i').style.background = 'var(--ok)';
-  document.querySelector('.status').childNodes[1].textContent = 'all systems normal';
+  const st = document.getElementById('stamp');
+  st.textContent = 'ALL SYSTEMS NORMAL';
+  st.className = 'stamp';
 }
-function hideNotice() { document.getElementById('notice').classList.remove('show'); }
 
 loadRooms();
 </script>
