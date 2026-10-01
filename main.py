@@ -1,5 +1,8 @@
+from pathlib import Path
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from middleware import install_crash_interceptor
@@ -14,6 +17,11 @@ app.add_middleware(
 )
 
 install_crash_interceptor(app)
+
+
+@app.get("/", response_class=FileResponse)
+def index():
+    return FileResponse(Path(__file__).parent / "static" / "index.html")
 
 ROOMS = {
     "atlas":    {"name": "Atlas Boardroom",   "capacity": 12, "booked": 7},
