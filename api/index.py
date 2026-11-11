@@ -1,1 +1,1 @@
-from main import app
+from main import app as app  # re-exported: Vercel's ASGI entrypoint expects api.index:app
