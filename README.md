@@ -1,5 +1,7 @@
 # YUGA_testing
 
+[![CI](https://github.com/Udbhav7002/YUGA_testing/actions/workflows/ci.yml/badge.svg?style=flat)](https://github.com/Udbhav7002/YUGA_testing/actions/workflows/ci.yml)
+
 Companion demo target for **[YUGA · CodeGhost](https://github.com/Udbhav7002/YUGA)** —
 a deliberately fragile FastAPI service whose crashes feed the CodeGhost pipeline:
 production crash in → verified fix + pull request out.
